@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenv
+backend/.venv/
+.venv/
+
+# Secrets / local env
+.env
+backend/.env
+*.local
+
+# Local tooling / agent config
+.claude/
+.superpowers/
+.mcp.json
+
+# OS
+.DS_Store
