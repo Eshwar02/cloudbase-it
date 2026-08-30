@@ -12,11 +12,4 @@ export default defineConfig({
       },
     },
   },
-  test: {
-    globals: true,
-    environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
-    css: true,
-    alias: [{ find: "lottie-react", replacement: "/src/test/__mocks__/lottie-react.tsx" }],
-  },
 });
