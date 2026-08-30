@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
 
@@ -6,6 +6,7 @@ export function RenameModal({ open, initialName, onSubmit, onClose }: {
   open: boolean; initialName: string; onSubmit: (name: string) => void; onClose: () => void;
 }) {
   const [name, setName] = useState(initialName);
+  useEffect(() => { setName(initialName); }, [initialName]);
   return (
     <Modal open={open} onClose={onClose} title="Rename">
       <input aria-label="New name" value={name} onChange={(e) => setName(e.target.value)}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import type { Folder } from "../../types";
@@ -7,6 +7,7 @@ export function MoveModal({ open, folders, onSubmit, onClose }: {
   open: boolean; folders: Folder[]; onSubmit: (folderId: string) => void; onClose: () => void;
 }) {
   const [target, setTarget] = useState("");
+  useEffect(() => { if (open) setTarget(""); }, [open]);
   return (
     <Modal open={open} onClose={onClose} title="Move to folder">
       <select aria-label="Destination folder" value={target} onChange={(e) => setTarget(e.target.value)}
