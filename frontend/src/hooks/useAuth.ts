@@ -3,7 +3,7 @@ import * as authApi from "../api/auth";
 
 export function useAuth() {
   const qc = useQueryClient();
-  const me = useQuery({ queryKey: ["me"], queryFn: authApi.getMe });
+  const me = useQuery({ queryKey: ["me"], queryFn: authApi.getMe, staleTime: 30_000 });
 
   const loginMut = useMutation({
     mutationFn: (v: { email: string; password: string }) => authApi.login(v.email, v.password),

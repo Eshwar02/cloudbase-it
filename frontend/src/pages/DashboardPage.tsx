@@ -33,26 +33,48 @@ export default function DashboardPage() {
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: isRoot ? ["drive"] : ["folder", id] });
+    if (!isRoot && id) qc.invalidateQueries({ queryKey: ["breadcrumb", id] });
+  };
+
+  const notifyError = (e: unknown) => {
+    const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+    notify(detail ?? "Something went wrong", "error");
   };
 
   async function onNewFolder() {
     const name = prompt("Folder name");
     if (!name) return;
-    await createFolder(name, id ?? null);
-    invalidate();
-    notify("Folder created", "success");
+    try {
+      await createFolder(name, id ?? null);
+      invalidate();
+      notify("Folder created", "success");
+    } catch (e) {
+      notifyError(e);
+    }
   }
 
   async function onDownload(f: { id: string }) {
-    const url = await getDownloadUrl(f.id);
-    window.open(url, "_blank");
+    try {
+      const url = await getDownloadUrl(f.id);
+      window.open(url, "_blank");
+    } catch (e) {
+      notifyError(e);
+    }
   }
 
   async function onDeleteFile(f: { id: string }) {
-    await deleteFile(f.id); invalidate(); notify("Moved to trash", "info");
+    try {
+      await deleteFile(f.id); invalidate(); notify("Moved to trash", "info");
+    } catch (e) {
+      notifyError(e);
+    }
   }
   async function onDeleteFolder(f: { id: string }) {
-    await deleteFolder(f.id); invalidate(); notify("Folder trashed", "info");
+    try {
+      await deleteFolder(f.id); invalidate(); notify("Folder trashed", "info");
+    } catch (e) {
+      notifyError(e);
+    }
   }
 
   return (
@@ -81,16 +103,24 @@ export default function DashboardPage() {
         onClose={() => setRenameTarget(null)}
         onSubmit={async (name) => {
           if (!renameTarget) return;
-          if (renameTarget.kind === "file") await updateFile(renameTarget.id, { name });
-          else await updateFolder(renameTarget.id, { name });
-          setRenameTarget(null); invalidate(); notify("Renamed", "success");
+          try {
+            if (renameTarget.kind === "file") await updateFile(renameTarget.id, { name });
+            else await updateFolder(renameTarget.id, { name });
+            setRenameTarget(null); invalidate(); notify("Renamed", "success");
+          } catch (e) {
+            notifyError(e);
+          }
         }} />
       <MoveModal open={!!moveTarget} folders={folders}
         onClose={() => setMoveTarget(null)}
         onSubmit={async (folderId) => {
           if (!moveTarget) return;
-          await updateFile(moveTarget.id, { folder_id: folderId });
-          setMoveTarget(null); invalidate(); notify("Moved", "success");
+          try {
+            await updateFile(moveTarget.id, { folder_id: folderId });
+            setMoveTarget(null); invalidate(); notify("Moved", "success");
+          } catch (e) {
+            notifyError(e);
+          }
         }} />
     </div>
   );

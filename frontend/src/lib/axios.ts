@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const api = axios.create({ baseURL: "/api", withCredentials: true });
 
-let refreshing = false;
+let refreshPromise: Promise<unknown> | null = null;
 
 api.interceptors.response.use(
   (res) => res,
@@ -13,14 +13,10 @@ api.interceptors.response.use(
     if (status === 401 && !original?._retry && !isAuthRefresh) {
       original._retry = true;
       try {
-        if (!refreshing) {
-          refreshing = true;
-          await api.post("/auth/refresh");
-          refreshing = false;
-        }
+        refreshPromise ??= api.post("/auth/refresh").finally(() => { refreshPromise = null; });
+        await refreshPromise;
         return api(original);
       } catch (e) {
-        refreshing = false;
         return Promise.reject(e);
       }
     }
