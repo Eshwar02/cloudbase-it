@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Topbar } from "../components/layout/Topbar";
@@ -11,6 +10,7 @@ import { useFolder } from "../hooks/useFolder";
 import { createFolder, deleteFolder } from "../api/folders";
 import { deleteFile, getDownloadUrl } from "../api/files";
 import { useToast } from "../components/ui/Toast";
+import { UploadDropzone } from "../components/files/UploadDropzone";
 
 export default function DashboardPage() {
   const { id } = useParams();
@@ -21,7 +21,6 @@ export default function DashboardPage() {
   const folder = useFolder(id ?? "");
 
   const isRoot = !id;
-  const listing = isRoot ? drive.data : folder.listing.data;
   const loading = isRoot ? drive.isLoading : folder.listing.isLoading;
 
   const folders = isRoot ? drive.data?.folders ?? [] : folder.listing.data?.folders ?? [];
@@ -59,6 +58,7 @@ export default function DashboardPage() {
           onNavigate={(fid) => nav(fid ? `/folder/${fid}` : "/")} />
         <Button intent="primary" onClick={onNewFolder}>New folder</Button>
       </div>
+      <UploadDropzone folderId={id ?? null} onUploaded={invalidate} />
       {loading ? (
         <div className="flex justify-center p-10"><Spinner /></div>
       ) : (
