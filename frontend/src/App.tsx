@@ -1,9 +1,15 @@
+import { QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider } from "react-router-dom";
+import { queryClient } from "./lib/queryClient";
+import { ToastProvider } from "./components/ui/Toast";
+import { router } from "./router";
+
 export default function App() {
   return (
-    <div className="min-h-full flex items-center justify-center">
-      <div className="glass rounded-xl2 p-8">
-        <h1 className="text-2xl font-semibold text-brand-blue">Cloudbase</h1>
-      </div>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>
+        <RouterProvider router={router} />
+      </ToastProvider>
+    </QueryClientProvider>
   );
 }
