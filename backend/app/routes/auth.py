@@ -12,6 +12,7 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+from app.core.ratelimit import limiter
 from app.models.tables import User
 from app.schemas.auth import LoginIn, RegisterIn, UserOut
 
@@ -34,7 +35,9 @@ def _set_auth_cookies(resp: Response, user_id: str) -> None:
 
 
 @router.post("/register", response_model=UserOut, status_code=201)
-def register(body: RegisterIn, session: Session = Depends(get_session)):
+@limiter.limit("20/minute")
+def register(request: Request, body: RegisterIn,
+             session: Session = Depends(get_session)):
     exists = session.exec(select(User).where(User.email == body.email)).first()
     if exists:
         raise HTTPException(status.HTTP_409_CONFLICT, "Email already registered")
@@ -50,7 +53,9 @@ def register(body: RegisterIn, session: Session = Depends(get_session)):
 
 
 @router.post("/login", response_model=UserOut)
-def login(body: LoginIn, response: Response, session: Session = Depends(get_session)):
+@limiter.limit("20/minute")
+def login(request: Request, body: LoginIn, response: Response,
+          session: Session = Depends(get_session)):
     user = session.exec(select(User).where(User.email == body.email)).first()
     target_hash = user.password_hash if user else _DUMMY_PASSWORD_HASH
     password_ok = verify_password(body.password, target_hash)

@@ -1,10 +1,16 @@
 from fastapi import FastAPI
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
+from app.core.ratelimit import limiter
 from app.routes import (
     auth, drive, files, folders, links, search, shares, stars, trash,
 )
 
 app = FastAPI(title="Cloud Storage Service")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 app.include_router(auth.router)
 app.include_router(folders.router)
 app.include_router(files.router)

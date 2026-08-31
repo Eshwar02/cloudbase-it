@@ -1,11 +1,12 @@
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlmodel import Session
 
 from app.core.db import get_session
 from app.core.deps import get_current_user
+from app.core.ratelimit import limiter
 from app.models.tables import Activity, File, FileVersion, Folder, User
 from app.schemas.files import (
     CompleteUploadIn, FileOut, FileUpdate, InitUploadIn, InitUploadOut,
@@ -17,7 +18,9 @@ router = APIRouter(prefix="/files", tags=["files"])
 
 
 @router.post("/init-upload", response_model=InitUploadOut)
-def init_upload(body: InitUploadIn, user: User = Depends(get_current_user),
+@limiter.limit("60/minute")
+def init_upload(request: Request, body: InitUploadIn,
+                user: User = Depends(get_current_user),
                 session: Session = Depends(get_session)):
     if user.storage_used_bytes + body.size_bytes > user.storage_quota_bytes:
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
