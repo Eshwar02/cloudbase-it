@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 
-from app.routes import auth, drive, files, folders, search, shares, trash
+from app.routes import (
+    auth, drive, files, folders, links, search, shares, trash,
+)
 
 app = FastAPI(title="Cloud Storage Service")
 app.include_router(auth.router)
@@ -10,6 +12,7 @@ app.include_router(trash.router)
 app.include_router(search.router)
 app.include_router(drive.router)
 app.include_router(shares.router)
+app.include_router(links.router)
 
 
 @app.get("/health")
