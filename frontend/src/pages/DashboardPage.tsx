@@ -14,6 +14,8 @@ import { useToast } from "../components/ui/Toast";
 import { UploadDropzone } from "../components/files/UploadDropzone";
 import { RenameModal } from "../components/files/RenameModal";
 import { MoveModal } from "../components/files/MoveModal";
+import { ShareModal, type ShareTarget } from "../components/files/ShareModal";
+import { useStarred } from "../hooks/useStarred";
 
 export default function DashboardPage() {
   const { id } = useParams();
@@ -22,8 +24,11 @@ export default function DashboardPage() {
   const { notify } = useToast();
   const drive = useDrive();
   const folder = useFolder(id ?? "");
+  const starred = useStarred();
+  const starredIds = new Set((starred.items.data ?? []).map((i) => i.id));
   const [renameTarget, setRenameTarget] = useState<{ kind: "file" | "folder"; id: string; name: string } | null>(null);
   const [moveTarget, setMoveTarget] = useState<{ id: string } | null>(null);
+  const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null);
 
   const isRoot = !id;
   const loading = isRoot ? drive.isLoading : folder.listing.isLoading;
@@ -97,6 +102,11 @@ export default function DashboardPage() {
           onRenameFolder={(f) => setRenameTarget({ kind: "folder", id: f.id, name: f.name })}
           onMove={(f) => setMoveTarget({ id: f.id })}
           onDeleteFile={onDeleteFile} onDeleteFolder={onDeleteFolder}
+          onShareFile={(f) => setShareTarget({ kind: "file", id: f.id, name: f.name })}
+          onShareFolder={(f) => setShareTarget({ kind: "folder", id: f.id, name: f.name })}
+          onToggleStarFile={(f) => starred.toggle({ file_id: f.id }, starredIds.has(f.id))}
+          onToggleStarFolder={(f) => starred.toggle({ folder_id: f.id }, starredIds.has(f.id))}
+          starredIds={starredIds}
         />
       )}
       <RenameModal open={!!renameTarget} initialName={renameTarget?.name ?? ""}
@@ -122,6 +132,7 @@ export default function DashboardPage() {
             notifyError(e);
           }
         }} />
+      <ShareModal target={shareTarget} onClose={() => setShareTarget(null)} />
     </div>
   );
 }
