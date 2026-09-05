@@ -61,13 +61,6 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/health/config")
-def health_config():
-    """Diagnostic: show non-secret runtime config (allowed origins, AI on/off)."""
-    from app.services.ai import ai_enabled
-    return {"cors_origins": _origins, "ai_enabled": ai_enabled()}
-
-
 @app.get("/health/db")
 def health_db():
     """Diagnostic: verify the DB connection and classify failures (no secrets)."""
