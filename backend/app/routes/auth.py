@@ -26,11 +26,13 @@ def _set_auth_cookies(resp: Response, user_id: str) -> None:
     s = get_settings()
     resp.set_cookie(
         "access_token", create_access_token(user_id), httponly=True,
-        samesite="lax", max_age=s.jwt_access_ttl_min * 60, path="/",
+        secure=s.cookie_secure, samesite=s.cookie_samesite,
+        max_age=s.jwt_access_ttl_min * 60, path="/",
     )
     resp.set_cookie(
         "refresh_token", create_refresh_token(user_id), httponly=True,
-        samesite="lax", max_age=s.jwt_refresh_ttl_days * 86400, path="/",
+        secure=s.cookie_secure, samesite=s.cookie_samesite,
+        max_age=s.jwt_refresh_ttl_days * 86400, path="/",
     )
 
 

@@ -11,6 +11,7 @@ from app.models.tables import Activity, File, FileVersion, Folder, User
 from app.schemas.files import (
     CompleteUploadIn, FileOut, FileUpdate, InitUploadIn, InitUploadOut,
 )
+from app.services import ai, semantic
 from app.services.permissions import require_role
 from app.services.storage import get_storage
 
@@ -67,7 +68,20 @@ def complete_upload(body: CompleteUploadIn,
                               target_id=file.id, action="upload")])
     session.commit()
     session.refresh(file)
+    _try_embed(session, file)
     return file
+
+
+def _try_embed(session: Session, file: File) -> None:
+    """Best-effort embedding for semantic search. Never blocks the upload."""
+    if not (ai.ai_enabled() and semantic.is_postgres(session)):
+        return
+    try:
+        blob = f"{file.name} {file.mime_type or ''}".strip()
+        vec = ai.embed([blob])[0]
+        semantic.store_embedding(session, file.id, vec)
+    except Exception:
+        pass
 
 
 @router.get("/{file_id}", response_model=FileOut)
