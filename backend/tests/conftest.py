@@ -19,6 +19,15 @@ def setup_db():
     SQLModel.metadata.drop_all(engine)
 
 
+@pytest.fixture(autouse=True)
+def _ai_disabled_by_default(monkeypatch):
+    # Keep the suite hermetic: ignore any MISTRAL_API_KEY from the developer's
+    # local .env so AI features default to "disabled". Tests that exercise the
+    # enabled paths monkeypatch ai.ai_enabled / ai.chat_json themselves.
+    from app.core.config import get_settings
+    monkeypatch.setattr(get_settings(), "mistral_api_key", None, raising=False)
+
+
 @pytest.fixture
 def client() -> TestClient:
     return TestClient(app)
