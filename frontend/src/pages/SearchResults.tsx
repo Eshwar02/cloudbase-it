@@ -6,12 +6,16 @@ import { useSearch } from "../hooks/useSearch";
 
 export default function SearchResults() {
   const [q, setQ] = useState("");
-  const { data, isLoading, isFetching } = useSearch(q);
+  const [semantic, setSemantic] = useState(false);
+  const { data, isLoading, isFetching } = useSearch(q, "all", semantic);
   return (
     <div>
-      <Topbar><SearchBar onSearch={setQ} /></Topbar>
+      <Topbar>
+        <SearchBar onSearch={setQ} semantic={semantic}
+          onToggleSemantic={setSemantic} />
+      </Topbar>
       <h1 className="px-6 py-4 text-lg text-slate-600">
-        {q ? `Results for "${q}"` : "Type to search"}
+        {q ? `${semantic ? "AI results" : "Results"} for "${q}"` : "Type to search"}
       </h1>
       {(isLoading || isFetching) && q ? (
         <div className="flex justify-center p-10"><Spinner /></div>

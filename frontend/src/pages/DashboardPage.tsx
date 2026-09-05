@@ -15,6 +15,7 @@ import { UploadDropzone } from "../components/files/UploadDropzone";
 import { RenameModal } from "../components/files/RenameModal";
 import { MoveModal } from "../components/files/MoveModal";
 import { ShareModal, type ShareTarget } from "../components/files/ShareModal";
+import { OrganizeModal } from "../components/files/OrganizeModal";
 import { useStarred } from "../hooks/useStarred";
 
 export default function DashboardPage() {
@@ -29,6 +30,7 @@ export default function DashboardPage() {
   const [renameTarget, setRenameTarget] = useState<{ kind: "file" | "folder"; id: string; name: string } | null>(null);
   const [moveTarget, setMoveTarget] = useState<{ id: string } | null>(null);
   const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null);
+  const [organizeOpen, setOrganizeOpen] = useState(false);
 
   const isRoot = !id;
   const loading = isRoot ? drive.isLoading : folder.listing.isLoading;
@@ -88,7 +90,14 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between px-6 py-4">
         <Breadcrumb entries={isRoot ? [] : folder.breadcrumb.data ?? []}
           onNavigate={(fid) => nav(fid ? `/folder/${fid}` : "/")} />
-        <Button intent="primary" onClick={onNewFolder}>New folder</Button>
+        <div className="flex items-center gap-2">
+          {!isRoot && (
+            <Button intent="ghost" onClick={() => setOrganizeOpen(true)}>
+              ✨ Organize
+            </Button>
+          )}
+          <Button intent="primary" onClick={onNewFolder}>New folder</Button>
+        </div>
       </div>
       <UploadDropzone folderId={id ?? null} onUploaded={invalidate} />
       {loading ? (
@@ -133,6 +142,8 @@ export default function DashboardPage() {
           }
         }} />
       <ShareModal target={shareTarget} onClose={() => setShareTarget(null)} />
+      <OrganizeModal open={organizeOpen} folderId={id ?? null}
+        onClose={() => setOrganizeOpen(false)} onApplied={invalidate} />
     </div>
   );
 }

@@ -35,3 +35,6 @@ export interface LinkShare {
   id: string; token: string; url: string; role: string;
   has_password: boolean; expires_at: string | null; created_at: string;
 }
+export interface OrganizeGroup { name: string; file_ids: string[]; folder_ids: string[]; }
+export interface OrganizeProposal { groups: OrganizeGroup[]; }
+export interface OrganizeApplyResult { created_folders: { id: string; name: string }[]; moved: number; }
