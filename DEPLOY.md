@@ -7,11 +7,18 @@ Backend → **Render** (Docker), Frontend → **Vercel**, DB + Storage → **Sup
 columns. Run it once against your Supabase database (SQL editor or `psql`). Semantic search
 falls back to keyword search until this is applied *and* a Mistral key is set.
 
+> ⚠️ **DATABASE_URL must use the Supabase connection POOLER, not the direct host.**
+> The direct host `db.<ref>.supabase.co:5432` is **IPv6-only**; Render (and most
+> IPv4 hosts) can't reach it, so every DB request 500s while `/health` still says OK.
+> Use the **Session pooler** string from Supabase → **Connect** → *Session pooler*:
+> `postgresql://postgres.<ref>:[PASSWORD]@<region>.pooler.supabase.com:5432/postgres`
+> (Transaction pooler is port `6543`.) The pooler is IPv4-compatible.
+
 ## 1. Backend on Render
 1. Push this repo to GitHub.
 2. Render → **New → Blueprint** → select the repo. It reads `render.yaml`.
-3. Set the secret env vars (dashboard): `DATABASE_URL`, `SUPABASE_URL`,
-   `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, and (optional) `MISTRAL_API_KEY`.
+3. Set the secret env vars (dashboard): `DATABASE_URL` (**pooler URL — see warning above**),
+   `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, and (optional) `MISTRAL_API_KEY`.
    Leave `CORS_ORIGINS` empty for now.
 4. Deploy. Confirm `https://<service>.onrender.com/health` returns `{"status":"ok"}`.
 
