@@ -7,5 +7,5 @@ test("unauthenticated user lands on login", async () => {
   server.use(http.get("/api/auth/me", () => new HttpResponse(null, { status: 401 })));
   window.history.pushState({}, "", "/");
   render(<App />);
-  await waitFor(() => expect(screen.getByText("Welcome back")).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByText("Sign in")).toBeInTheDocument());
 });

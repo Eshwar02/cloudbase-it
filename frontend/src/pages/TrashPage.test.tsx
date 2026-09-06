@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { MemoryRouter } from "react-router-dom";
 import { queryClient } from "../lib/queryClient";
 import { server } from "../test/server";
 import TrashPage from "./TrashPage";
@@ -9,7 +10,9 @@ import TrashPage from "./TrashPage";
 function renderTrash() {
   queryClient.clear();
   return render(
-    <QueryClientProvider client={queryClient}><TrashPage /></QueryClientProvider>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter><TrashPage /></MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
