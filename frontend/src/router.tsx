@@ -7,6 +7,8 @@ import SearchResults from "./pages/SearchResults";
 import SharedPage from "./pages/SharedPage";
 import StarredPage from "./pages/StarredPage";
 import PublicPage from "./pages/PublicPage";
+import SettingsPage from "./pages/SettingsPage";
+import ProfilePage from "./pages/ProfilePage";
 import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 
@@ -24,6 +26,8 @@ export const router = createBrowserRouter([
       { path: "starred", element: <StarredPage /> },
       { path: "trash", element: <TrashPage /> },
       { path: "search", element: <SearchResults /> },
+      { path: "settings", element: <SettingsPage /> },
+      { path: "profile", element: <ProfilePage /> },
     ],
   },
 ]);

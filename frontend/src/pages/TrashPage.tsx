@@ -7,6 +7,7 @@ import { ConfirmDialog } from "../components/ui/ConfirmDialog";
 import { fileIcon } from "../components/files/fileIcon";
 import { useTrash } from "../hooks/useTrash";
 import { useToast } from "../components/ui/Toast";
+import { useSettings } from "../hooks/useSettings";
 import { deleteFile } from "../api/files";
 import { deleteFolder } from "../api/folders";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,8 +16,14 @@ import type { TrashItem } from "../types";
 export default function TrashPage() {
   const { items, restore, purge } = useTrash();
   const { notify } = useToast();
+  const { settings } = useSettings();
   const qc = useQueryClient();
   const [confirm, setConfirm] = useState<TrashItem | null>(null);
+
+  function onDeleteForever(i: TrashItem) {
+    if (settings.confirm_permanent_delete) setConfirm(i);
+    else purge.mutate(i);
+  }
 
   function onRestore(i: TrashItem) {
     restore.mutate(i);
@@ -53,7 +60,7 @@ export default function TrashPage() {
                 <Button intent="ghost" onClick={() => onRestore(i)}>
                   <Icon name="restore_from_trash" size={18} /> Restore
                 </Button>
-                <Button intent="ghost" className="text-red-600" onClick={() => setConfirm(i)}>
+                <Button intent="ghost" className="text-red-600" onClick={() => onDeleteForever(i)}>
                   <Icon name="delete_forever" size={18} /> Delete forever
                 </Button>
               </li>
