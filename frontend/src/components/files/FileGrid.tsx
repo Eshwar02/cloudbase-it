@@ -31,7 +31,7 @@ export function FileGrid(p: Props) {
 
   if (p.folders.length === 0 && p.files.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 p-16 text-center text-g-muted">
+      <div className="flex flex-col items-center gap-3 p-16 text-center text-g-muted dark:text-gray-400">
         <Icon name="folder_open" size={48} className="text-g-borderStrong" />
         <p>This folder is empty.</p>
       </div>
@@ -51,7 +51,7 @@ export function FileGrid(p: Props) {
     <div className="space-y-6 px-4 pb-8">
       {p.folders.length > 0 && (
         <section>
-          <h2 className="mb-2 px-1 text-sm font-medium text-g-text">Folders</h2>
+          <h2 className="mb-2 px-1 text-sm font-medium text-g-text dark:text-gray-100">Folders</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {p.folders.map((f) => (
               <FolderCard
@@ -71,7 +71,7 @@ export function FileGrid(p: Props) {
 
       {p.files.length > 0 && (
         <section>
-          <h2 className="mb-2 px-1 text-sm font-medium text-g-text">Files</h2>
+          <h2 className="mb-2 px-1 text-sm font-medium text-g-text dark:text-gray-100">Files</h2>
           {view === "list" ? (
             <FileTable
               files={p.files}

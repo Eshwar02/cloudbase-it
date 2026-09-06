@@ -16,7 +16,7 @@ export default function SearchResults() {
         <SearchBar onSearch={setQ} semantic={semantic}
           onToggleSemantic={setSemantic} />
       </Topbar>
-      <h1 className="px-6 pb-3 pt-2 text-[22px] text-g-text">
+      <h1 className="px-6 pb-3 pt-2 text-[22px] text-g-text dark:text-gray-100">
         {q ? `${semantic ? "AI results" : "Results"} for "${q}"` : "Search your Drive"}
       </h1>
       {(isLoading || isFetching) && q ? (
@@ -26,7 +26,7 @@ export default function SearchResults() {
           {(data ?? []).map((r) => {
             const ic = r.type === "folder" ? { icon: "folder", color: "text-g-muted" } : fileIcon(r.name, r.mime_type);
             return (
-              <li key={`${r.type}-${r.id}`} className="flex items-center gap-3 rounded-lg border border-g-border px-4 py-2.5 text-sm text-g-text hover:bg-g-hover">
+              <li key={`${r.type}-${r.id}`} className="flex items-center gap-3 rounded-lg border border-g-border px-4 py-2.5 text-sm text-g-text hover:bg-g-hover dark:border-white/10 dark:text-gray-100 dark:hover:bg-white/5">
                 <Icon name={ic.icon} size={20} className={ic.color} fill />
                 <span className="truncate">{r.name}</span>
               </li>

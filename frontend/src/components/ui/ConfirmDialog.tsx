@@ -9,7 +9,7 @@ interface Props {
 export function ConfirmDialog({ open, title, message, confirmLabel = "Confirm", onConfirm, onClose }: Props) {
   return (
     <Modal open={open} onClose={onClose} title={title}>
-      <p className="mb-6 text-slate-600">{message}</p>
+      <p className="mb-6 text-g-muted dark:text-gray-300">{message}</p>
       <div className="flex justify-end gap-3">
         <Button intent="ghost" onClick={onClose}>Cancel</Button>
         <Button intent="warning" onClick={onConfirm}>{confirmLabel}</Button>

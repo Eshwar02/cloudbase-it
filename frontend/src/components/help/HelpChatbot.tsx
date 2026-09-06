@@ -21,7 +21,8 @@ export function HelpChatbot({ onBack, seed }: { onBack: () => void; seed?: strin
 
   const scrollToEnd = () => {
     requestAnimationFrame(() => {
-      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+      const el = scrollRef.current;
+      if (el?.scrollTo) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     });
   };
 

@@ -21,7 +21,7 @@ export function UploadDropzone({
       <div
         {...getRootProps()}
         className={`flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-dashed p-4 text-sm transition-colors ${
-          isDragActive ? "border-g-blue bg-g-blue/5 text-g-blue" : "border-g-border text-g-muted hover:bg-g-hover"
+          isDragActive ? "border-g-blue bg-g-blue/5 text-g-blue" : "border-g-border text-g-muted hover:bg-g-hover dark:border-white/15 dark:text-gray-400 dark:hover:bg-white/5"
         }`}
       >
         <input {...getInputProps()} aria-label="Upload files" />
@@ -31,14 +31,14 @@ export function UploadDropzone({
       {list.length > 0 && (
         <ul className="mt-3 space-y-2">
           {list.map(([k, u]) => (
-            <li key={k} className="flex items-center gap-3 rounded-lg border border-g-border px-4 py-2 text-sm">
+            <li key={k} className="flex items-center gap-3 rounded-lg border border-g-border px-4 py-2 text-sm dark:border-white/10">
               <Icon
                 name={u.status === "done" ? "check_circle" : u.status === "error" ? "error" : "progress_activity"}
                 size={18}
                 className={u.status === "done" ? "text-[#188038]" : u.status === "error" ? "text-red-600" : "text-g-blue"}
               />
-              <span className="flex-1 truncate text-g-text">{u.name}</span>
-              <span className="text-g-muted">
+              <span className="flex-1 truncate text-g-text dark:text-gray-100">{u.name}</span>
+              <span className="text-g-muted dark:text-gray-400">
                 {u.status === "done" ? "Done" : u.status === "error" ? "Failed" : `${u.pct}%`}
               </span>
             </li>

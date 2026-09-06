@@ -36,12 +36,12 @@ export function FolderCard({
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       onDoubleClick={() => onOpen(folder.id)}
-      className="group flex items-center gap-3 rounded-lg bg-g-hover px-4 py-3 transition-colors hover:bg-g-border/50"
+      className="group flex items-center gap-3 rounded-lg bg-g-hover px-4 py-3 transition-colors hover:bg-g-border/50 dark:bg-white/[.06] dark:hover:bg-white/10"
     >
-      <Icon name="folder" size={22} fill className="text-g-muted" />
+      <Icon name="folder" size={22} fill className="text-g-muted dark:text-gray-300" />
       <button
         onClick={() => onOpen(folder.id)}
-        className="flex-1 truncate text-left text-sm font-medium text-g-text"
+        className="flex-1 truncate text-left text-sm font-medium text-g-text dark:text-gray-100"
         title={folder.name}
       >
         {folder.name}

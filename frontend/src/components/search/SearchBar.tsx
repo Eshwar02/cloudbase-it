@@ -21,14 +21,14 @@ export function SearchBar({
 
   return (
     <div className="flex w-full max-w-2xl items-center gap-2">
-      <div className="flex flex-1 items-center gap-3 rounded-full bg-g-hover px-4 py-2.5 transition-colors focus-within:bg-white focus-within:shadow-[0_1px_3px_1px_rgba(60,64,67,.15)]">
+      <div className="flex flex-1 items-center gap-3 rounded-full bg-g-hover px-4 py-2.5 transition-colors focus-within:bg-white focus-within:shadow-[0_1px_3px_1px_rgba(60,64,67,.15)] dark:bg-white/10 dark:focus-within:bg-white/15">
         <Icon name="search" size={22} className="text-g-muted" />
         <input
           aria-label="Search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={semantic ? "Search by meaning…" : "Search in Cloudbase"}
-          className="w-full bg-transparent text-[15px] text-g-text outline-none placeholder:text-g-muted"
+          className="w-full bg-transparent text-[15px] text-g-text outline-none placeholder:text-g-muted dark:text-gray-100"
         />
       </div>
       {onToggleSemantic && (
