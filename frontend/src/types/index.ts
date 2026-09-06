@@ -1,6 +1,15 @@
+export interface UserSettings {
+  appearance?: "light" | "dark" | "system";
+  density?: "comfortable" | "compact";
+  default_view?: "list" | "grid";
+  confirm_permanent_delete?: boolean;
+  notifications?: boolean;
+}
 export interface User {
   id: string; email: string; display_name: string;
   storage_used_bytes: number; storage_quota_bytes: number;
+  settings?: UserSettings;
+  created_at?: string | null;
 }
 export interface Folder {
   id: string; owner_id: string; parent_id: string | null;

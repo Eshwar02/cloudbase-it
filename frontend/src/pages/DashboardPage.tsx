@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Topbar } from "../components/layout/Topbar";
@@ -12,6 +12,7 @@ import { useFolder } from "../hooks/useFolder";
 import { useAuth } from "../hooks/useAuth";
 import { useUpload } from "../hooks/useUpload";
 import { useDriveActions } from "../hooks/useDriveActions";
+import { useSettings } from "../hooks/useSettings";
 import { createFolder, deleteFolder, updateFolder } from "../api/folders";
 import { deleteFile, getDownloadUrl, updateFile } from "../api/files";
 import { restoreItem } from "../api/trash";
@@ -40,7 +41,14 @@ export default function DashboardPage() {
   const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null);
   const [organizeOpen, setOrganizeOpen] = useState(false);
   const [newFolderOpen, setNewFolderOpen] = useState(false);
-  const [view, setView] = useState<"list" | "grid">("list");
+  const { settings } = useSettings();
+  const [view, setView] = useState<"list" | "grid">(settings.default_view);
+
+  // Follow the user's default-view preference until they toggle it here.
+  const userToggledView = useRef(false);
+  useEffect(() => {
+    if (!userToggledView.current) setView(settings.default_view);
+  }, [settings.default_view]);
 
   const isRoot = !id;
   const loading = isRoot ? drive.isLoading : folder.listing.isLoading;
@@ -154,16 +162,16 @@ export default function DashboardPage() {
             <button
               aria-label="List view"
               aria-pressed={view === "list"}
-              onClick={() => setView("list")}
-              className={`grid h-8 w-8 place-items-center rounded-full ${view === "list" ? "bg-g-selected text-g-selectedText" : "text-g-muted hover:bg-g-hover"}`}
+              onClick={() => { userToggledView.current = true; setView("list"); }}
+              className={`grid h-8 w-8 place-items-center rounded-full ${view === "list" ? "bg-g-selected text-g-selectedText dark:bg-[#004a77] dark:text-[#c2e7ff]" : "text-g-muted hover:bg-g-hover dark:hover:bg-white/10"}`}
             >
               <Icon name="format_list_bulleted" size={20} />
             </button>
             <button
               aria-label="Grid view"
               aria-pressed={view === "grid"}
-              onClick={() => setView("grid")}
-              className={`grid h-8 w-8 place-items-center rounded-full ${view === "grid" ? "bg-g-selected text-g-selectedText" : "text-g-muted hover:bg-g-hover"}`}
+              onClick={() => { userToggledView.current = true; setView("grid"); }}
+              className={`grid h-8 w-8 place-items-center rounded-full ${view === "grid" ? "bg-g-selected text-g-selectedText dark:bg-[#004a77] dark:text-[#c2e7ff]" : "text-g-muted hover:bg-g-hover dark:hover:bg-white/10"}`}
             >
               <Icon name="grid_view" size={20} />
             </button>
