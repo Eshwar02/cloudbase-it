@@ -1,6 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
 
 
@@ -12,6 +13,7 @@ class User(SQLModel, table=True):
     display_name: str
     storage_used_bytes: int = 0
     storage_quota_bytes: int = 5_368_709_120
+    settings: dict = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

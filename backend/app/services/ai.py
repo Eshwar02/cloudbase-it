@@ -46,6 +46,24 @@ def embed(texts: list[str]) -> list[list[float]]:
     return [item["embedding"] for item in data["data"]]
 
 
+def chat_text(system: str, messages: list[dict]) -> str:
+    """Free-text chat completion (no JSON mode) for the help assistant.
+
+    ``messages`` is a list of ``{"role": "user"|"assistant", "content": str}``.
+    """
+    if not ai_enabled():
+        raise AIUnavailable("MISTRAL_API_KEY not configured")
+    data = _request("/v1/chat/completions", {
+        "model": get_settings().mistral_chat_model,
+        "messages": [{"role": "system", "content": system}, *messages],
+        "temperature": 0.3,
+    })
+    try:
+        return data["choices"][0]["message"]["content"].strip()
+    except (KeyError, IndexError) as exc:
+        raise AIError(f"Malformed AI response: {exc}") from exc
+
+
 def chat_json(system: str, user: str) -> dict:
     if not ai_enabled():
         raise AIUnavailable("MISTRAL_API_KEY not configured")

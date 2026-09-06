@@ -14,7 +14,14 @@ from app.core.security import (
 )
 from app.core.ratelimit import limiter
 from app.models.tables import User
-from app.schemas.auth import LoginIn, RegisterIn, UserOut
+from app.schemas.auth import (
+    LoginIn,
+    PasswordChange,
+    ProfileUpdate,
+    RegisterIn,
+    SettingsUpdate,
+    UserOut,
+)
 
 # Precomputed dummy hash for timing equalization in login
 _DUMMY_PASSWORD_HASH = hash_password("dummy-password-for-timing-equalization")
@@ -91,4 +98,41 @@ def logout(response: Response):
 
 @router.get("/me", response_model=UserOut)
 def me(user: User = Depends(get_current_user)):
+    return user
+
+
+@router.patch("/me", response_model=UserOut)
+def update_profile(body: ProfileUpdate,
+                   user: User = Depends(get_current_user),
+                   session: Session = Depends(get_session)):
+    user.display_name = body.display_name.strip()
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+@router.post("/change-password")
+def change_password(body: PasswordChange,
+                    user: User = Depends(get_current_user),
+                    session: Session = Depends(get_session)):
+    if not verify_password(body.current_password, user.password_hash):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "current_password_incorrect")
+    user.password_hash = hash_password(body.new_password)
+    session.add(user)
+    session.commit()
+    return {"status": "password_changed"}
+
+
+@router.patch("/settings", response_model=UserOut)
+def update_settings(body: SettingsUpdate,
+                    user: User = Depends(get_current_user),
+                    session: Session = Depends(get_session)):
+    patch = body.model_dump(exclude_none=True)
+    merged = {**(user.settings or {}), **patch}
+    user.settings = merged
+    # SQLAlchemy needs an explicit reassignment signal for JSON mutations.
+    session.add(user)
+    session.commit()
+    session.refresh(user)
     return user

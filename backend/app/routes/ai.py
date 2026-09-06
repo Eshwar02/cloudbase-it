@@ -8,8 +8,14 @@ from sqlmodel import Session, select
 from app.core.db import get_session
 from app.core.deps import get_current_user
 from app.models.tables import File, Folder, User
-from app.schemas.ai import OrganizeApplyResult, OrganizeProposal
+from app.schemas.ai import (
+    HelpChatIn,
+    HelpChatOut,
+    OrganizeApplyResult,
+    OrganizeProposal,
+)
 from app.services import ai
+from app.services import help as help_kb
 from app.services.permissions import require_role
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -95,3 +101,22 @@ def apply_organization(folder_id: UUID, proposal: OrganizeProposal,
                 moved += 1
         session.commit()
     return OrganizeApplyResult(created_folders=created, moved=moved)
+
+
+@router.post("/help-chat", response_model=HelpChatOut)
+def help_chat(body: HelpChatIn, user: User = Depends(get_current_user)):
+    """Answer a help question. Uses the LLM when configured, else a FAQ matcher.
+
+    Always returns 200 so the assistant degrades gracefully.
+    """
+    if ai.ai_enabled():
+        history = [{"role": m.role, "content": m.content}
+                   for m in body.history[-8:]
+                   if m.role in ("user", "assistant")]
+        history.append({"role": "user", "content": body.message})
+        try:
+            reply = ai.chat_text(help_kb.SYSTEM_PROMPT, history)
+            return HelpChatOut(reply=reply, source="ai")
+        except (ai.AIError, ai.AIUnavailable):
+            pass  # fall through to FAQ
+    return HelpChatOut(reply=help_kb.faq_answer(body.message), source="faq")
