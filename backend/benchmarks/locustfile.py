@@ -65,3 +65,18 @@ class DriveUser(HttpUser):
     def browse_folder(self):
         if self.folder_id:
             self.client.get(f"/folders/{self.folder_id}", name="GET /folders/{id}")
+
+    @task(2)
+    def help_chat(self):
+        self.client.post("/ai/help-chat", json={"message": "How do I restore a file?"},
+                         name="POST /ai/help-chat")
+
+    @task(1)
+    def update_settings(self):
+        self.client.patch("/auth/settings", json={"appearance": "dark"},
+                          name="PATCH /auth/settings")
+
+    @task(1)
+    def update_profile(self):
+        self.client.patch("/auth/me", json={"display_name": "Load Tester"},
+                         name="PATCH /auth/me")
