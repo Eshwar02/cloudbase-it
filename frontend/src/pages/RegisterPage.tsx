@@ -30,27 +30,28 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center p-4">
-      <GlassCard className="w-full max-w-md p-8">
-        <LottieCharacter state={state} className="mx-auto mb-4 h-40 w-40" />
-        <h1 className="mb-6 text-center text-2xl font-semibold text-brand-violet">Create account</h1>
+    <div className="flex min-h-full items-center justify-center bg-g-rail p-4">
+      <GlassCard className="w-full max-w-md p-10">
+        <LottieCharacter state={state} className="mx-auto mb-2 h-32 w-32" />
+        <h1 className="text-center font-display text-2xl text-g-text">Create your account</h1>
+        <p className="mb-6 text-center text-sm text-g-muted">to get started with Cloudbase</p>
         <motion.form onSubmit={onSubmit} className="space-y-4">
           <input aria-label="Name" required value={name} onChange={(e) => { setName(e.target.value); setState("write"); }}
             placeholder="Display name"
-            className="w-full rounded-full border border-white/50 bg-white/70 px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-violet" />
+            className="w-full rounded-lg border border-g-borderStrong bg-white px-4 py-3 text-g-text outline-none transition-colors focus:border-g-blue focus:ring-1 focus:ring-g-blue" />
           <input aria-label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full rounded-full border border-white/50 bg-white/70 px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-violet" />
+            className="w-full rounded-lg border border-g-borderStrong bg-white px-4 py-3 text-g-text outline-none transition-colors focus:border-g-blue focus:ring-1 focus:ring-g-blue" />
           <input aria-label="Password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full rounded-full border border-white/50 bg-white/70 px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-violet" />
-          {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
-          <Button type="submit" intent="secondary" isLoading={registerMut.isPending} className="w-full">
+            className="w-full rounded-lg border border-g-borderStrong bg-white px-4 py-3 text-g-text outline-none transition-colors focus:border-g-blue focus:ring-1 focus:ring-g-blue" />
+          {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+          <Button type="submit" intent="primary" isLoading={registerMut.isPending} className="w-full">
             Sign up
           </Button>
         </motion.form>
-        <p className="mt-4 text-center text-sm text-slate-500">
-          Have an account? <Link to="/login" className="text-brand-blue">Log in</Link>
+        <p className="mt-6 text-center text-sm text-g-muted">
+          Have an account? <Link to="/login" className="font-medium text-g-blue hover:underline">Log in</Link>
         </p>
       </GlassCard>
     </div>
