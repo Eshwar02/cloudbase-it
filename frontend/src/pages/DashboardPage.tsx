@@ -44,9 +44,8 @@ export default function DashboardPage() {
 
   const folders = isRoot ? drive.data?.folders ?? [] : folder.listing.data?.folders ?? [];
   const files = isRoot ? drive.data?.files ?? [] : folder.listing.data?.files ?? [];
-  const locationLabel = isRoot
-    ? "My Drive"
-    : folder.breadcrumb.data?.at(-1)?.name ?? "My Drive";
+  const crumbs = folder.breadcrumb.data ?? [];
+  const locationLabel = isRoot ? "My Drive" : crumbs[crumbs.length - 1]?.name ?? "My Drive";
   const uploader = useUpload(id ?? null, () => invalidate());
 
   const invalidate = () => {
