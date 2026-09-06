@@ -24,7 +24,7 @@ export const getFile = (id: string) =>
 export const getDownloadUrl = (id: string) =>
   api.get<{ download_url: string }>(`/files/${id}/download`).then((r) => r.data.download_url);
 
-export const updateFile = (id: string, body: { name?: string; folder_id?: string }) =>
+export const updateFile = (id: string, body: { name?: string; folder_id?: string | null }) =>
   api.patch<FileItem>(`/files/${id}`, body).then((r) => r.data);
 
 export const deleteFile = (id: string) =>

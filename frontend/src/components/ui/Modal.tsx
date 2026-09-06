@@ -20,12 +20,12 @@ export function Modal({ open, onClose, title, children }: Props) {
         >
           <motion.div
             role="dialog" aria-modal="true" aria-label={title}
-            className="glass rounded-xl2 p-6 w-full max-w-md"
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-[0_11px_15px_-7px_rgba(0,0,0,.2)] dark:bg-[#2d2e30]"
             initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }} transition={{ type: "spring", duration: 0.3 }}
             onClick={(e) => e.stopPropagation()}
           >
-            {title && <h2 className="mb-4 text-lg font-semibold text-slate-800">{title}</h2>}
+            {title && <h2 className="mb-4 text-xl font-normal text-g-text dark:text-gray-100">{title}</h2>}
             {children}
           </motion.div>
         </motion.div>

@@ -104,12 +104,15 @@ def update_file(file_id: UUID, body: FileUpdate,
     require_role(session, user.id, file=file, minimum="editor")
     if body.name is not None:
         file.name = body.name
-    if body.folder_id is not None:
-        dest = session.get(Folder, body.folder_id)
-        if dest is None or dest.is_trashed:
-            raise HTTPException(status.HTTP_404_NOT_FOUND,
-                                "Destination folder not found")
-        require_role(session, user.id, folder=dest, minimum="editor")
+    # Distinguish "not provided" from an explicit null (move to root) via the
+    # set of fields present in the request.
+    if "folder_id" in body.model_fields_set:
+        if body.folder_id is not None:
+            dest = session.get(Folder, body.folder_id)
+            if dest is None or dest.is_trashed:
+                raise HTTPException(status.HTTP_404_NOT_FOUND,
+                                    "Destination folder not found")
+            require_role(session, user.id, folder=dest, minimum="editor")
         file.folder_id = body.folder_id
     file.updated_at = datetime.utcnow()
     session.add(file)

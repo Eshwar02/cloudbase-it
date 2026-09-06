@@ -9,7 +9,7 @@ import { getDownloadUrl } from "../api/files";
 import { useToast } from "../components/ui/Toast";
 
 export default function StarredPage() {
-  const { items, unstar } = useStarred();
+  const { items, star, unstar } = useStarred();
   const nav = useNavigate();
   const { notify } = useToast();
 
@@ -40,8 +40,14 @@ export default function StarredPage() {
                 <button className="flex-1 truncate text-left text-sm text-g-text" onClick={() => openItem(i)}>
                   {i.name}
                 </button>
-                <Button intent="ghost" onClick={() =>
-                  unstar.mutate(i.item_type === "file" ? { file_id: i.id } : { folder_id: i.id })}>
+                <Button intent="ghost" onClick={() => {
+                  const target = i.item_type === "file" ? { file_id: i.id } : { folder_id: i.id };
+                  unstar.mutate(target);
+                  notify(`Removed “${i.name}” from starred`, "info", {
+                    actionLabel: "Undo",
+                    onAction: () => star.mutate(target),
+                  });
+                }}>
                   <Icon name="star" size={18} fill className="text-g-muted" /> Unstar
                 </Button>
               </li>

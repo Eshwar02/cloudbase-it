@@ -6,12 +6,15 @@ import { MemoryRouter } from "react-router-dom";
 import { queryClient } from "../lib/queryClient";
 import { server } from "../test/server";
 import TrashPage from "./TrashPage";
+import { ToastProvider } from "../components/ui/Toast";
 
 function renderTrash() {
   queryClient.clear();
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter><TrashPage /></MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter><TrashPage /></MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>,
   );
 }

@@ -10,8 +10,9 @@ export function RenameModal({ open, initialName, onSubmit, onClose }: {
   return (
     <Modal open={open} onClose={onClose} title="Rename">
       <input aria-label="New name" value={name} onChange={(e) => setName(e.target.value)}
-        className="mb-4 w-full rounded-full border border-white/50 bg-white/70 px-4 py-2.5 outline-none focus:ring-2 focus:ring-brand-violet" />
-      <div className="flex justify-end gap-3">
+        onKeyDown={(e) => e.key === "Enter" && onSubmit(name)}
+        className="mb-5 w-full rounded-lg border border-g-borderStrong bg-white px-4 py-2.5 text-g-text outline-none transition-colors focus:border-g-blue focus:ring-1 focus:ring-g-blue dark:border-white/20 dark:bg-white/5 dark:text-gray-100" />
+      <div className="flex justify-end gap-2">
         <Button intent="ghost" onClick={onClose}>Cancel</Button>
         <Button intent="primary" onClick={() => onSubmit(name)}>Save</Button>
       </div>

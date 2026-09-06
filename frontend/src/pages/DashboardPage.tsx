@@ -14,9 +14,11 @@ import { useUpload } from "../hooks/useUpload";
 import { useDriveActions } from "../hooks/useDriveActions";
 import { createFolder, deleteFolder, updateFolder } from "../api/folders";
 import { deleteFile, getDownloadUrl, updateFile } from "../api/files";
+import { restoreItem } from "../api/trash";
 import { useToast } from "../components/ui/Toast";
 import { UploadDropzone } from "../components/files/UploadDropzone";
 import { RenameModal } from "../components/files/RenameModal";
+import { NameModal } from "../components/ui/NameModal";
 import { MoveModal } from "../components/files/MoveModal";
 import { ShareModal, type ShareTarget } from "../components/files/ShareModal";
 import { OrganizeModal } from "../components/files/OrganizeModal";
@@ -37,6 +39,7 @@ export default function DashboardPage() {
   const [moveTarget, setMoveTarget] = useState<{ id: string } | null>(null);
   const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null);
   const [organizeOpen, setOrganizeOpen] = useState(false);
+  const [newFolderOpen, setNewFolderOpen] = useState(false);
   const [view, setView] = useState<"list" | "grid">("list");
 
   const isRoot = !id;
@@ -58,16 +61,25 @@ export default function DashboardPage() {
     notify(detail ?? "Something went wrong", "error");
   };
 
-  async function onNewFolder() {
-    const name = prompt("Folder name");
-    if (!name) return;
+  const runUndo = (fn: () => Promise<unknown>) => {
+    fn().then(invalidate).catch(notifyError);
+  };
+
+  async function createNamedFolder(name: string) {
     try {
-      await createFolder(name, id ?? null);
+      const created = await createFolder(name, id ?? null);
       invalidate();
-      notify("Folder created", "success");
+      notify(`Folder “${name}” created`, "success", {
+        actionLabel: "Undo",
+        onAction: () => runUndo(() => deleteFolder(created.id)),
+      });
     } catch (e) {
       notifyError(e);
     }
+  }
+
+  function onNewFolder() {
+    setNewFolderOpen(true);
   }
 
   // Bridge the sidebar's global "New" button to this folder's context.
@@ -86,19 +98,44 @@ export default function DashboardPage() {
     }
   }
 
-  async function onDeleteFile(f: { id: string }) {
+  async function onDeleteFile(f: { id: string; name?: string }) {
     try {
-      await deleteFile(f.id); invalidate(); notify("Moved to trash", "info");
+      await deleteFile(f.id); invalidate();
+      notify(`${f.name ? `“${f.name}” ` : ""}moved to trash`, "info", {
+        actionLabel: "Undo",
+        onAction: () => runUndo(() => restoreItem("file", f.id)),
+      });
     } catch (e) {
       notifyError(e);
     }
   }
-  async function onDeleteFolder(f: { id: string }) {
+  async function onDeleteFolder(f: { id: string; name?: string }) {
     try {
-      await deleteFolder(f.id); invalidate(); notify("Folder trashed", "info");
+      await deleteFolder(f.id); invalidate();
+      notify(`${f.name ? `“${f.name}” ` : ""}moved to trash`, "info", {
+        actionLabel: "Undo",
+        onAction: () => runUndo(() => restoreItem("folder", f.id)),
+      });
     } catch (e) {
       notifyError(e);
     }
+  }
+
+  function onToggleStarFile(f: { id: string; name: string }) {
+    const was = starredIds.has(f.id);
+    starred.toggle({ file_id: f.id }, was);
+    notify(was ? `Removed “${f.name}” from starred` : `Added “${f.name}” to starred`, "info", {
+      actionLabel: "Undo",
+      onAction: () => starred.toggle({ file_id: f.id }, !was),
+    });
+  }
+  function onToggleStarFolder(f: { id: string; name: string }) {
+    const was = starredIds.has(f.id);
+    starred.toggle({ folder_id: f.id }, was);
+    notify(was ? `Removed “${f.name}” from starred` : `Added “${f.name}” to starred`, "info", {
+      actionLabel: "Undo",
+      onAction: () => starred.toggle({ folder_id: f.id }, !was),
+    });
   }
 
   return (
@@ -152,8 +189,8 @@ export default function DashboardPage() {
           onDeleteFile={onDeleteFile} onDeleteFolder={onDeleteFolder}
           onShareFile={(f) => setShareTarget({ kind: "file", id: f.id, name: f.name })}
           onShareFolder={(f) => setShareTarget({ kind: "folder", id: f.id, name: f.name })}
-          onToggleStarFile={(f) => starred.toggle({ file_id: f.id }, starredIds.has(f.id))}
-          onToggleStarFolder={(f) => starred.toggle({ folder_id: f.id }, starredIds.has(f.id))}
+          onToggleStarFile={onToggleStarFile}
+          onToggleStarFolder={onToggleStarFolder}
           starredIds={starredIds}
         />
       )}
@@ -161,10 +198,17 @@ export default function DashboardPage() {
         onClose={() => setRenameTarget(null)}
         onSubmit={async (name) => {
           if (!renameTarget) return;
+          const { kind, id: targetId, name: oldName } = renameTarget;
           try {
-            if (renameTarget.kind === "file") await updateFile(renameTarget.id, { name });
-            else await updateFolder(renameTarget.id, { name });
-            setRenameTarget(null); invalidate(); notify("Renamed", "success");
+            if (kind === "file") await updateFile(targetId, { name });
+            else await updateFolder(targetId, { name });
+            setRenameTarget(null); invalidate();
+            notify(`Renamed to “${name}”`, "success", {
+              actionLabel: "Undo",
+              onAction: () => runUndo(() =>
+                kind === "file" ? updateFile(targetId, { name: oldName })
+                  : updateFolder(targetId, { name: oldName })),
+            });
           } catch (e) {
             notifyError(e);
           }
@@ -173,13 +217,23 @@ export default function DashboardPage() {
         onClose={() => setMoveTarget(null)}
         onSubmit={async (folderId) => {
           if (!moveTarget) return;
+          const fileId = moveTarget.id;
+          const origin = id ?? null;
           try {
-            await updateFile(moveTarget.id, { folder_id: folderId });
-            setMoveTarget(null); invalidate(); notify("Moved", "success");
+            await updateFile(fileId, { folder_id: folderId });
+            setMoveTarget(null); invalidate();
+            notify("Moved", "success", {
+              actionLabel: "Undo",
+              onAction: () => runUndo(() => updateFile(fileId, { folder_id: origin })),
+            });
           } catch (e) {
             notifyError(e);
           }
         }} />
+      <NameModal open={newFolderOpen} title="New folder" label="Folder name"
+        confirmLabel="Create" initialValue=""
+        onClose={() => setNewFolderOpen(false)}
+        onSubmit={async (name) => { setNewFolderOpen(false); await createNamedFolder(name); }} />
       <ShareModal target={shareTarget} onClose={() => setShareTarget(null)} />
       <OrganizeModal open={organizeOpen} folderId={id ?? null}
         onClose={() => setOrganizeOpen(false)} onApplied={invalidate} />
